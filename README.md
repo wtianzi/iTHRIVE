@@ -21,4 +21,6 @@ taskindex = 1 # trial index
 ## Run the script:
 Use command line or other IDEs installed.
 
-If use command line: type and run(enter) 'python addeyegazedemo.py'
+If use command line: 
+1) navigate to the iTHRIVE folder
+2) type and run(enter) 'python addeyegazedemo.py'
