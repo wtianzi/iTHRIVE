@@ -61,8 +61,8 @@ def GroundTruth(eyetrackingdata, starttime,endtime,imagecount,out_groundtruth_fi
     #print(interval)
     screen_width = 1358
     screen_height = 726
-    screen_left=197
-    screen_top=95
+    screen_left=100#197
+    screen_top=95#95
     inidiameter=4.0
     eyegaze_x,eyegaze_y=0,0
     # valid line index of the eye tracker data file
@@ -74,10 +74,10 @@ def GroundTruth(eyetrackingdata, starttime,endtime,imagecount,out_groundtruth_fi
         t_x = 0.0
         t_y = 0.0
         t_n = 0.0
-        diameter_l = 0
-        diameter_r = 0
+        diameter_l = inidiameter
+        diameter_r = inidiameter
         #print(starttime + interval*i)
-        while t_index< len(eyetrackingdata) and int(eyetrackingdata[t_index][11]) <= starttime + interval*(i):
+        while t_index< len(eyetrackingdata) and int(eyetrackingdata[t_index][11]) <= starttime + interval*(i+1):
             left_x = float(eyetrackingdata[t_index][4])
             left_y = float(eyetrackingdata[t_index][5])
             right_x = float(eyetrackingdata[t_index][6])
@@ -91,12 +91,12 @@ def GroundTruth(eyetrackingdata, starttime,endtime,imagecount,out_groundtruth_fi
             t_n += 1
             t_index += 1
 
-        if t_n > 0:
-            if np.isnan(diameter_l) or diameter_l < inidiameter:
-                diameter_l = inidiameter
-            if np.isnan(diameter_r) or diameter_r < inidiameter:
-                diameter_r = inidiameter
+        if np.isnan(diameter_l) or diameter_l < inidiameter:
+            diameter_l = inidiameter
+        if np.isnan(diameter_r) or diameter_r < inidiameter:
+            diameter_r = inidiameter
 
+        if t_n > 0:
             #eyegaze_x = int(screen_width * left_x - screen_left)
             #eyegaze_y = int(screen_height * left_y - screen_top)
             eyegaze_x = int(screen_width * float(t_x / t_n) - screen_left)
@@ -143,18 +143,22 @@ def GenerateVideo(voutname,w,h,imgfolder,imagecount,out_groundtruth_file):
 
 
 def main():
-    fileindex = 1573754660363
-    taskindex = 1
+    fileindex = ['']#'1573754660363'
+    taskindex ='A' #1
+    trialindex='1' #'A'
+    cameraindex='3'
+
     starttime = 1573754660378  # fileindex+50#1573754660364  #
     endtime = 1573754766404
-    folder = "./Data/testing/"
+    folder = "./Data/20191212_22/"#"./Data/testing/"
+
 
     out_groundtruth_rect = folder+"groundtruth_rect.txt"
-    videoname = folder+'Camera3_taskA_trial' + str(taskindex) + '_' + str(fileindex) + '.avi'
+    videoname = folder+"Camera"+cameraindex+"_task"+taskindex+'_trial' + trialindex + '_' + fileindex[0] + '.avi'
 
-    #vcount,w,h=ImageExtraction(videoname)
-    vcount,w,h=2213,1280,720
-    t_filter=CheckValidityLines(folder+"Tobii_taskA_trial" + str(taskindex) + "_" + str(fileindex) + ".txt")
+    vcount,w,h=ImageExtraction(videoname)
+    #vcount,w,h=2213,1280,720
+    t_filter=CheckValidityLines(folder+"Tobii_taskA_trial" + trialindex + "_" + fileindex + ".txt")
     GroundTruth(t_filter, starttime, endtime, vcount, out_groundtruth_rect)
     GenerateVideo(videoname.replace('.avi', '_out.avi'), w, h, folder+"img/", vcount, out_groundtruth_rect)
     print([vcount])
