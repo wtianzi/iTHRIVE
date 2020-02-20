@@ -20,9 +20,11 @@
 import cv2
 import numpy as np
 import progressbar
+import os
+import json
 
 # step 1: extract all image from the video, get the number of images
-def ImageExtraction(videoname,folder="./Data/testing/"):
+def ImageExtraction(videoname,folder):
     cap = cv2.VideoCapture(videoname)
     if (cap.isOpened() == False):
         print("Error opening video stream or file")
@@ -117,6 +119,8 @@ def GroundTruth(eyetrackingdata, starttime,endtime,imagecount,out_groundtruth_fi
 # step 4: generate video based on image and groundtruth
 
 def GenerateVideo(voutname,w,h,imgfolder,imagecount,out_groundtruth_file):
+    if not os.path.exists(imgfolder):
+        os.makedirs(imgfolder)
     bar = progressbar.ProgressBar(maxval=imagecount, \
                                   widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     bar.start()
@@ -125,7 +129,8 @@ def GenerateVideo(voutname,w,h,imgfolder,imagecount,out_groundtruth_file):
     for line in open(out_groundtruth_file):
         lineList.append(list(map(int, line.rstrip("\n").split(','))))
     #print(len(lineList))
-    out = cv2.VideoWriter(voutname, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10,(w, h))
+    #out = cv2.VideoWriter(voutname, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10,(w, h))
+    out = cv2.VideoWriter(voutname.replace(".avi",".mp4"), cv2.VideoWriter_fourcc('m','p','4','v'), 10, (w, h))
     for i in range (0,imagecount):
         img=cv2.imread(imgfolder+"%04d.jpg" % (i+1))
         cv2.rectangle(img,
@@ -141,25 +146,46 @@ def GenerateVideo(voutname,w,h,imgfolder,imagecount,out_groundtruth_file):
     cv2.destroyAllWindows()
     return 0
 
+def ReadTrialData(trialfilename,taskindex='A',trialindex='1'):
+    #json_arr=[]
+    starttime,endtime=0,0
+    with open (trialfilename) as fp:
+        for line in fp:
+            if 'participant' in line:
+                line = line.rstrip(",\n").replace("\"\"{","\"").replace("}\"\"","\"")
+                t_obj=json.loads(line)
+                if t_obj["taskindex"]==taskindex and t_obj["trialindex"]==trialindex:
+                    if t_obj["status"]=="START":
+                        starttime= t_obj["unixtimestamp"]
+                    elif t_obj["status"]=="START":
+                        end= t_obj["unixtimestamp"]
+                #json_arr.append(json.loads(line))
+    #print(json_arr)
+    return int(starttime),int(endtime) #json_arr
 
 def main():
-    fileindex = '1573754660363'
-    taskindex ='A' #1
-    trialindex='1' #'A'
-    cameraindex='3'
+    folder = "./Data/testing/"  # "./Data/testing/"
+    videoname="Camera3_taskA_trial1_1573754660363.avi"
+    trialfilename = "Trials_1573754637958.txt"
 
-    starttime = 1573754660378  # fileindex+50#1573754660364  #
-    endtime = 1573754766404
-    folder = "./Data/testing/"#"./Data/testing/"
+
+    trialinfo_arr=videoname.split('_')
+    print(trialinfo_arr)
+    taskindex = trialinfo_arr[1].replace("task","") #'A'
+    trialindex = trialinfo_arr[2].replace("trial","")#'1'
+    videofileindex = trialinfo_arr[3].replace(".avi","") # '1573754660363' #number of the video file
+
+    starttime,endtime=ReadTrialData(folder+trialfilename,taskindex,trialindex)
+
+    #starttime = 1573754660378  # videofileindex+50#1573754660364  #
+    #endtime = 1573754766404
 
     imagesize=1.0
     out_groundtruth_rect = folder+"groundtruth_rect.txt"
-    videoname = folder+"Camera"+cameraindex+"_task"+taskindex+'_trial' + trialindex + '_' + fileindex + '.avi'
-    #print(videoname)
 
-    vcount,w,h=ImageExtraction(videoname)
+    vcount,w,h=ImageExtraction(folder+videoname,folder)
     #vcount,w,h=2213,1280,720
-    t_filter=CheckValidityLines(folder+"Tobii_taskA_trial" + trialindex + "_" + fileindex + ".txt")
+    t_filter=CheckValidityLines(folder+"Tobii_task"+taskindex+"_trial" + trialindex + "_" + videofileindex + ".txt")
     GroundTruth(t_filter, starttime, endtime, vcount, out_groundtruth_rect)
     GenerateVideo(videoname.replace('.avi', '_out.avi'), w, h, folder+"img/", vcount, out_groundtruth_rect)
     print([vcount])
