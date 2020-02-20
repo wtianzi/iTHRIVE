@@ -50,6 +50,7 @@ def ImageExtraction(videoname,folder):
 
 # step 2: filter data from eye tracking file
 def CheckValidityLines(filename):
+    print(filename)
     lineList = [line.rstrip("\n").split(',') for line in open(filename)]
     t_filter = list(filter(lambda x: x[0] == "Valid" and float(x[4]) <= 1 and float(x[5]) <= 1, lineList))
     return t_filter
@@ -157,14 +158,14 @@ def ReadTrialData(trialfilename,taskindex='A',trialindex='1'):
                 if t_obj["taskindex"]==taskindex and t_obj["trialindex"]==trialindex:
                     if t_obj["status"]=="START":
                         starttime= t_obj["unixtimestamp"]
-                    elif t_obj["status"]=="START":
-                        end= t_obj["unixtimestamp"]
+                    elif t_obj["status"]=="END":
+                        endtime= t_obj["unixtimestamp"]
                 #json_arr.append(json.loads(line))
     #print(json_arr)
     return int(starttime),int(endtime) #json_arr
 
 def main():
-    folder = "./Data/testing/"  # "./Data/testing/"
+    folder = "./Data/testing/"
     videoname="Camera3_taskA_trial1_1573754660363.avi"
     trialfilename = "Trials_1573754637958.txt"
 
@@ -176,7 +177,7 @@ def main():
     videofileindex = trialinfo_arr[3].replace(".avi","") # '1573754660363' #number of the video file
 
     starttime,endtime=ReadTrialData(folder+trialfilename,taskindex,trialindex)
-
+    print([starttime,endtime])
     #starttime = 1573754660378  # videofileindex+50#1573754660364  #
     #endtime = 1573754766404
 
@@ -187,7 +188,8 @@ def main():
     #vcount,w,h=2213,1280,720
     t_filter=CheckValidityLines(folder+"Tobii_task"+taskindex+"_trial" + trialindex + "_" + videofileindex + ".txt")
     GroundTruth(t_filter, starttime, endtime, vcount, out_groundtruth_rect)
-    GenerateVideo(videoname.replace('.avi', '_out.avi'), w, h, folder+"img/", vcount, out_groundtruth_rect)
+
+    GenerateVideo(folder+videoname.replace('.avi', '_out.avi'), w, h, folder+"img/", vcount, out_groundtruth_rect)
     print([vcount])
 if __name__ == '__main__':
     main()
