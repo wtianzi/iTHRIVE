@@ -143,18 +143,19 @@ def GenerateVideo(voutname,w,h,imgfolder,imagecount,out_groundtruth_file):
 
 
 def main():
-    fileindex = ['']#'1573754660363'
+    fileindex = '1573754660363'
     taskindex ='A' #1
     trialindex='1' #'A'
     cameraindex='3'
 
     starttime = 1573754660378  # fileindex+50#1573754660364  #
     endtime = 1573754766404
-    folder = "./Data/20191212_22/"#"./Data/testing/"
+    folder = "./Data/testing/"#"./Data/testing/"
 
-
+    imagesize=1.0
     out_groundtruth_rect = folder+"groundtruth_rect.txt"
-    videoname = folder+"Camera"+cameraindex+"_task"+taskindex+'_trial' + trialindex + '_' + fileindex[0] + '.avi'
+    videoname = folder+"Camera"+cameraindex+"_task"+taskindex+'_trial' + trialindex + '_' + fileindex + '.avi'
+    #print(videoname)
 
     vcount,w,h=ImageExtraction(videoname)
     #vcount,w,h=2213,1280,720
