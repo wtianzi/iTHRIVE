@@ -23,8 +23,8 @@ import progressbar
 import os
 import json
 
-IMG_WIDTH=1024 #original is the 1024
-IMG_HEIGHT=768 # original is the 768
+IMG_WIDTH=1280 
+IMG_HEIGHT=720 
 DELAY=50 #ms
 
 # 2 degree fovea
