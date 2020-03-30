@@ -18,7 +18,9 @@ pip install progressbar
 2) Rewrite the file index and task index in the iTHRIVE_Imageextract.py file
 
     folder = "./Data/testing/"
+    
     videoname = "Camera3_taskA_trial1_1573754660363.avi"
+    
     trialfilename = "Trials_1573754637958.txt"
 
 ## Run the script:
