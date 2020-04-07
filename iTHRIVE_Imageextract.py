@@ -25,7 +25,7 @@ import json
 
 IMG_WIDTH=1280 
 IMG_HEIGHT=720 
-DELAY=50 #ms
+DELAY=0 #ms
 
 # 2 degree fovea
 # distance*tan(1)=0.01745
